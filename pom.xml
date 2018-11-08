@@ -109,7 +109,7 @@
 	</dependencyManagement>
 
 	<build>
-		<pluigins>
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
@@ -118,8 +118,7 @@
 					<tagNameFormat>avro-registry-in-source/@{project.version}</tagNameFormat>
 				</configuration>
 			</plugin>
-
-		</pluigins>
+		</plugins>
 	</build>
 
 	<modules>
