@@ -13,6 +13,12 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
+	<scm>
+		<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
+		<connection>scm:git:git://github.com/MoebiusSolutions/avro-registry-in-source.git</connection>
+		<developerConnection>scm:git:git@github.com:MoebiusSolutions/avro-registry-in-source.git</developerConnection>
+	</scm>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
