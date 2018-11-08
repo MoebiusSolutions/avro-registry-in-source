@@ -17,6 +17,7 @@
 		<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
 		<connection>scm:git:git://github.com/MoebiusSolutions/avro-registry-in-source.git</connection>
 		<developerConnection>scm:git:git@github.com:MoebiusSolutions/avro-registry-in-source.git</developerConnection>
+		<tag>release/0.0</tag>
 	</scm>
 
 	<dependencyManagement>
