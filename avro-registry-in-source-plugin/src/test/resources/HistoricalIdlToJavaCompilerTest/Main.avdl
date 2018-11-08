@@ -1,0 +1,11 @@
+@namespace("com.example.package")
+
+protocol MockProtocol {
+
+	import idl "Room.avdl";
+
+	record House {
+		union {null, array<Room>} rooms;
+	}
+
+}

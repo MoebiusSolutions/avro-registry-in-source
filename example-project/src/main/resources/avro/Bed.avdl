@@ -1,0 +1,16 @@
+@namespace("com.example")
+
+protocol MockProtocol {
+
+	enum BedSize {
+		TWIN,
+		FULL,
+		QUEEN,
+		KING
+	}
+
+	record Bed {
+		BedSize size;
+	}
+
+}

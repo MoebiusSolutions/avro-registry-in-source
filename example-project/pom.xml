@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.github.moebiussolutions.avro-registry-in-source</groupId>
+		<artifactId>root</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>example-project</artifactId>
+	<packaging>jar</packaging>
+	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>avro-registry-in-source</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<!-- Build the Avro POJOs and verify that the schemas are available. -->
+			<plugin>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>avro-registry-in-source-plugin</artifactId>
+				<version>${project.version}</version>
+				<configuration>
+					<!-- The IDL defining the current schemas -->
+					<idlFile>src/main/resources/avro/Main.avdl</idlFile>
+					<!-- The directory that contains all current and former schemas
+						(committed to revision control) -->
+					<schemaSourceDir>src/main/resources/avro-registry</schemaSourceDir>
+					<!-- A temporary location where the latest schemas are exported
+						(and can be manually copied to the previous location) -->
+					<javaTargetDir>target/generated-avro-sources</javaTargetDir>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>idl-export-validate-compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Collect the POJOs in the build. -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-avro-sources</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>

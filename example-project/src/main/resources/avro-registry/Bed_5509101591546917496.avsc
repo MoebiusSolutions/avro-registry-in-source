@@ -1,0 +1,13 @@
+{
+  "type" : "record",
+  "name" : "Bed",
+  "namespace" : "com.example",
+  "fields" : [ {
+    "name" : "size",
+    "type" : {
+      "type" : "enum",
+      "name" : "BedSize",
+      "symbols" : [ "TWIN", "FULL", "QUEEN", "KING" ]
+    }
+  } ]
+}

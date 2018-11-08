@@ -1,0 +1,6 @@
+{
+  "type" : "enum",
+  "name" : "BedSize",
+  "namespace" : "com.example",
+  "symbols" : [ "TWIN", "FULL", "QUEEN", "KING" ]
+}

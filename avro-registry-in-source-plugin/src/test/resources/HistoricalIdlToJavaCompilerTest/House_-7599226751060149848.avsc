@@ -1,0 +1,33 @@
+{
+  "type" : "record",
+  "name" : "House",
+  "namespace" : "com.example.package",
+  "fields" : [ {
+    "name" : "rooms",
+    "type" : [ "null", {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Room",
+        "fields" : [ {
+          "name" : "beds",
+          "type" : [ "null", {
+            "type" : "array",
+            "items" : {
+              "type" : "record",
+              "name" : "Bed",
+              "fields" : [ {
+                "name" : "size",
+                "type" : {
+                  "type" : "enum",
+                  "name" : "BedSize",
+                  "symbols" : [ "TWIN", "FULL", "QUEEN", "KING" ]
+                }
+              } ]
+            }
+          } ]
+        } ]
+      }
+    } ]
+  } ]
+}

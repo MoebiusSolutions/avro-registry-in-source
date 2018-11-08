@@ -1,0 +1,11 @@
+@namespace("com.example")
+
+protocol MockProtocol {
+
+	import idl "Bed.avdl";
+
+	record Room {
+		union {null, array<Bed>} beds;
+	}
+
+}
