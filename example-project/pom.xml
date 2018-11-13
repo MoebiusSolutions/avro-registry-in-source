@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.github.moebiussolutions.avro-registry-in-source</groupId>
 		<artifactId>avro-registry-in-source-parent</artifactId>
-		<version>1.3</version>
+		<version>1.4-SNAPSHOT</version>
 	</parent>
 	<artifactId>example-project</artifactId>
 	<packaging>jar</packaging>
