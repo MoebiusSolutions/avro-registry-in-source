@@ -2,12 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.github.moebiussolutions.avro-registry-in-source</groupId>
-		<artifactId>root</artifactId>
+		<artifactId>avro-registry-in-source-parent</artifactId>
 		<version>1.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>example-project</artifactId>
 	<packaging>jar</packaging>
 	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
+	<name>example-project</name>
+	<description>Example project for avro-registry-in-source</description>
 
 	<dependencies>
 		<dependency>

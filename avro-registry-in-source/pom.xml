@@ -2,12 +2,14 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.github.moebiussolutions.avro-registry-in-source</groupId>
-		<artifactId>root</artifactId>
+		<artifactId>avro-registry-in-source-parent</artifactId>
 		<version>1.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>avro-registry-in-source</artifactId>
 	<packaging>jar</packaging>
 	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
+	<name>avro-registry-in-source</name>
+	<Description>Provides accessor methods for serializing Avro messages stored in a JAR</name>
 
 	<dependencies>
 		<!-- TODO [rkenney]: Review need of all of these -->
