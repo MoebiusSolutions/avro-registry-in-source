@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
 	<name>avro-registry-in-source</name>
-	<Description>Provides accessor methods for serializing Avro messages stored in a JAR</name>
+	<description>Provides accessor methods for serializing Avro messages stored in a JAR</description>
 
 	<dependencies>
 		<!-- TODO [rkenney]: Review need of all of these -->
