@@ -43,9 +43,13 @@ public class AvroJsonLoader {
 	 * {@link #toJson(SpecificRecordBase, OutputStream, boolean)}, which ensures
 	 * that the JSON is wrapped with metadata about the Avro schema.
 	 * 
-	 * @param json     The JSON to parse.
-	 * @param avroPojo The Avro POJO type to return. The provided object is NOT
-	 *                 modified--only used for typing information.
+	 * @param json
+	 *            The JSON to parse.
+	 * @param avroPojo
+	 *            The Avro POJO type to return. The provided object is NOT
+	 *            modified--only used for typing information.
+	 * @param <K>
+	 *            The POJO type to return.
 	 * @return A new instance of the Avro POJO.
 	 */
 	public <K extends SpecificRecordBase> K fromJson(String json, final K avroPojo) {
@@ -110,9 +114,13 @@ public class AvroJsonLoader {
 	 * Serializes an Avro POJO to a JSON format that is wrapped by schema metadata
 	 * and can be deserialized with {@link #fromJson(String, SpecificRecordBase)}.
 	 * 
-	 * @param json   The Avro POJO to serialize.
-	 * @param pretty Whether or not to include newlines/indenting in the resulting
-	 *               JSON.
+	 * @param avroPojo
+	 *            The Avro POJO to serialize.
+	 * @param pretty
+	 *            Whether or not to include newlines/indenting in the resulting
+	 *            JSON.
+	 * @param <K>
+	 *            The POJO type to return.
 	 * @return A JSON string.
 	 */
 	public <K extends SpecificRecordBase> String toJson(K avroPojo, boolean pretty) {
@@ -130,10 +138,15 @@ public class AvroJsonLoader {
 	 * Serializes an Avro POJO to a JSON format that is wrapped by schema metadata
 	 * and can be deserialized with {@link #fromJson(String, SpecificRecordBase)}.
 	 * 
-	 * @param json   The Avro POJO to serialize.
-	 * @param out    The stream to write to.
-	 * @param pretty Whether or not to include newlines/indenting in the resulting
-	 *               JSON.
+	 * @param avroPojo
+	 *            The Avro POJO to serialize.
+	 * @param out
+	 *            The stream to write to.
+	 * @param pretty
+	 *            Whether or not to include newlines/indenting in the resulting
+	 *            JSON.
+	 * @param <K>
+	 *            The POJO type to return.
 	 */
 	public <K extends SpecificRecordBase> void toJson(K avroPojo, OutputStream out, boolean pretty) {
 		
