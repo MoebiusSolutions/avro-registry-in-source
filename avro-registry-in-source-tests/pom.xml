@@ -5,11 +5,11 @@
 		<artifactId>avro-registry-in-source-parent</artifactId>
 		<version>1.6-SNAPSHOT</version>
 	</parent>
-	<artifactId>example-project</artifactId>
+	<artifactId>avro-registry-in-source-tests</artifactId>
 	<packaging>jar</packaging>
 	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
-	<name>example-project</name>
-	<description>Example project for avro-registry-in-source</description>
+	<name>avro-registry-in-source-tests</name>
+	<description>Tests the use of the plugin and libarary. Also a good example project for this module.</description>
 
 	<dependencies>
 		<dependency>

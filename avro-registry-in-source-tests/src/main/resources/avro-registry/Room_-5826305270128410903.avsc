@@ -1,0 +1,31 @@
+{
+  "type" : "record",
+  "name" : "Room",
+  "namespace" : "com.example",
+  "fields" : [ {
+    "name" : "beds",
+    "type" : [ "null", {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "Bed",
+        "fields" : [ {
+          "name" : "size",
+          "type" : {
+            "type" : "enum",
+            "name" : "BedSize",
+            "symbols" : [ "TWIN", "FULL", "QUEEN", "KING" ]
+          }
+        }, {
+          "name" : "firmness",
+          "type" : {
+            "type" : "enum",
+            "name" : "BedFirmness",
+            "symbols" : [ "HARD", "SOFT" ]
+          },
+          "default" : "HARD"
+        } ]
+      }
+    } ]
+  } ]
+}

@@ -1,0 +1,6 @@
+{
+  "type" : "enum",
+  "name" : "BedFirmness",
+  "namespace" : "com.example",
+  "symbols" : [ "HARD", "SOFT" ]
+}

@@ -92,8 +92,8 @@ public class AvroJsonLoader {
 				throw new RuntimeException("Failed to load schema from resource ["+oldSchemaPath+"]");
 			}
 			oldSchema = new Schema.Parser().parse(in);
-		} catch (IOException e){
-			throw new RuntimeException("Failed to load resource file ["+oldSchemaPath+"]");
+		} catch (RuntimeException | IOException e){
+			throw new RuntimeException("Failed to load resource file ["+oldSchemaPath+"]", e);
 		}
 
 		// Load instantiate the Avro POJO
@@ -101,10 +101,10 @@ public class AvroJsonLoader {
 		JsonDecoder decoder;
 		try {
 			decoder = DecoderFactory.get().jsonDecoder(oldSchema, mainJsonData);
-			SpecificDatumReader<K> reader = new SpecificDatumReader<K>(oldSchema);
+			SpecificDatumReader<K> reader = new SpecificDatumReader<K>(oldSchema, avroPojo.getSchema());
 			result = reader.read(null, decoder);
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to decode json message to as ["+requestedSchemaType+"]");
+		} catch (RuntimeException | IOException e) {
+			throw new RuntimeException("Failed to decode json message to as ["+requestedSchemaType+"]", e);
 		}
 
 		return result;

@@ -9,8 +9,14 @@ protocol MockProtocol {
 		KING
 	}
 
+	enum BedFirmness {
+		HARD,
+		SOFT
+	}
+
 	record Bed {
 		BedSize size;
+		BedFirmness firmness = "HARD";
 	}
 
 }

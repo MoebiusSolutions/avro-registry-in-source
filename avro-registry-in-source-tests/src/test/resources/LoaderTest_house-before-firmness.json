@@ -1,0 +1,21 @@
+{"avroType":"House","avroVer":"-582778734993576161","avroData":
+{
+  "rooms" : {
+    "array" : [ {
+      "beds" : {
+        "array" : [ {
+          "size" : "KING"
+        } ]
+      }
+    }, {
+      "beds" : {
+        "array" : [ {
+          "size" : "QUEEN"
+        }, {
+          "size" : "TWIN"
+        } ]
+      }
+    } ]
+  }
+}
+}

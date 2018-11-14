@@ -196,7 +196,7 @@
 	<modules>
 		<module>avro-registry-in-source-plugin</module>
 		<module>avro-registry-in-source</module>
-		<module>example-project</module>
+		<module>avro-registry-in-source-tests</module>
 	</modules>
 
 </project>
