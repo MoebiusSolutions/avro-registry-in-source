@@ -20,7 +20,7 @@ JSON messages. In the future, this may be generalied.
 Using this Module
 ================
 
-There are two steps to configuring your project to use this module.
+There are three steps to using this module with your Maven project:
 
 1. Add the `avro-regisry-in-source-plugin` to your Maven build. This:
 
