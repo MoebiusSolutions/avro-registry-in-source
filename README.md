@@ -24,8 +24,8 @@ There are two steps to configuring your project to use this module.
 
 1. Add the `avro-regisry-in-source-plugin` to your Maven build. This:
 
-	* Exports all Avro schemas (*.avsc) from your Avro IDL definition (*.avdl) to a temporary directory
-	* Validates that the current Avro schemas (*.avsc) have already been added to you source directory--thus ensuring that future versions of the software will have this version of the schemas available.
+	* Exports all Avro schemas (.avsc) from your Avro IDL definition (.avdl) to a temporary directory
+	* Validates that the current Avro schemas (.avsc) have already been added to you source directory--thus ensuring that future versions of the software will have this version of the schemas available.
 	* Generates Java POJOs from your Avro IDL definition
 
 2. Add the `avro-regisry-in-source` to your Maven dependencies. This:
