@@ -3,7 +3,7 @@
 	<groupId>com.github.MoebiusSolutions.avro-registry-in-source</groupId>
 	<artifactId>avro-registry-in-source-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.6</version>
+	<version>1.7-SNAPSHOT</version>
 	<url>https://github.com/MoebiusSolutions/avro-registry-in-source</url>
 	<name>avro-registry-in-source-parent</name>
 	<description>Root POM</description>
