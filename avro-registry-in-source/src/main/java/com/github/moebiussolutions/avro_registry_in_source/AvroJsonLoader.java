@@ -55,17 +55,17 @@ public class AvroJsonLoader {
 	public <K extends SpecificRecordBase> K fromJson(String json, final K avroPojo) {
 
 		// Parse as generic JSON, extracting Avro schema info
-		String schemaType;
-		String schemaVersion;
+		String writerSchemaType;
+		String writerSchemaVersion;
 		String mainJsonData;
 		try (StringReader reader = new StringReader(json)) {
 			try (JsonReader jsonReader = Json.createReader(reader)) {
 				JsonObject root = jsonReader.readObject();
 				root.getString(AVRO_HEADER_TYPE);
 				root.getString(AVRO_HEADER_FINGERPRINT);
-				schemaType = root.getString(AVRO_HEADER_TYPE);
-				schemaVersion = root.getString(AVRO_HEADER_FINGERPRINT);
-				if (StringUtils.isBlank(schemaType) || StringUtils.isBlank(schemaVersion)) {
+				writerSchemaType = root.getString(AVRO_HEADER_TYPE);
+				writerSchemaVersion = root.getString(AVRO_HEADER_FINGERPRINT);
+				if (StringUtils.isBlank(writerSchemaType) || StringUtils.isBlank(writerSchemaVersion)) {
 					throw new RuntimeException("JSON message does not contain Avro header(s) "
 							+ "("+AVRO_HEADER_TYPE+", "+AVRO_HEADER_FINGERPRINT+")");
 				}
@@ -78,14 +78,14 @@ public class AvroJsonLoader {
 			}
 		}
 		String requestedSchemaType = avroPojo.getSchema().getName();
-		if (!requestedSchemaType.equals(schemaType)) {
+		if (!requestedSchemaType.equals(writerSchemaType)) {
 			throw new RuntimeException(
-					"Cannot load JSON message of type ["+schemaType+"] as ["+requestedSchemaType+"]");
+					"Cannot load JSON message of type ["+writerSchemaType+"] as ["+requestedSchemaType+"]");
 		}
 
 		// Load Avro schema (potentially older than the current schema)
 		Schema oldSchema; 
-		String oldSchemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, schemaType, schemaVersion);
+		String oldSchemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, writerSchemaType, writerSchemaVersion);
 		// TODO [rkenney]: Cache the schema object
 		try (InputStream in = AvroJsonLoader.class.getResourceAsStream(oldSchemaPath)) {
 			if (in == null) {
