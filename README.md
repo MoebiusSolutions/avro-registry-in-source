@@ -133,3 +133,7 @@ Use the utility methods to access the schemas:
 	house = loader.fromJson(json, house);
 
 
+Other Notes
+========
+
+* [Publishing a release of this module](Publishing-a-Release.md)
