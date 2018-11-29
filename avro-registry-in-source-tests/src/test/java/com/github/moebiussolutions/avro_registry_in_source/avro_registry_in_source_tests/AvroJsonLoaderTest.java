@@ -1,5 +1,6 @@
 package com.github.moebiussolutions.avro_registry_in_source.avro_registry_in_source_tests;
 
+
 import static org.junit.Assert.assertEquals;
 
 import java.io.InputStream;
