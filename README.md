@@ -136,4 +136,5 @@ Use the utility methods to access the schemas:
 Other Notes
 ========
 
+* [Release Notes](Release-Notes.md)
 * [Publishing a release of this module](Publishing-a-Release.md)
