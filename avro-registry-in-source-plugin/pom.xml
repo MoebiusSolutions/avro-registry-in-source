@@ -12,15 +12,9 @@
 	<description>Maven plugin that builds/verifies a JAR containing Avro schemas</description>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-		</dependency>
-		<!-- TODO [rkenney]: Needed? Added to avoid an error. -->
-		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-plugin-plugin</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
@@ -28,22 +22,9 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- TODO [rkenney]: Review need of all of these -->
-		<dependency>
-			<groupId>org.apache.avro</groupId>
-			<artifactId>avro</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.avro</groupId>
-			<artifactId>avro-maven-plugin</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.avro</groupId>
 			<artifactId>avro-compiler</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.avro</groupId>
-			<artifactId>avro-ipc</artifactId>
 		</dependency>
 
 		<dependency>
@@ -51,7 +32,6 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>
 
-		<!-- TODO [rkenney]: Remove if not needed -->
 		<dependency>
 			<groupId>javax.json</groupId>
 			<artifactId>javax.json-api</artifactId>
