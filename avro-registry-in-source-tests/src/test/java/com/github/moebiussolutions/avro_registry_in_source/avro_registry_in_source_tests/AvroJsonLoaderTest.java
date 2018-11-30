@@ -16,6 +16,7 @@ import com.example.BedSize;
 import com.example.House;
 import com.example.Room;
 import com.github.moebiussolutions.avro_registry_in_source.AvroJsonLoader;
+import com.google.common.base.StandardSystemProperty;
 
 public class AvroJsonLoaderTest {
 
@@ -86,26 +87,41 @@ public class AvroJsonLoaderTest {
 			json = IOUtils.toString(in, StandardCharsets.UTF_8);
 		}
 
+		int cycles = 10000;
 		AvroJsonLoader loader = new AvroJsonLoader("/avro-registry");
-		House house = loader.fromJson(json, new House());
+		long before = System.currentTimeMillis();
+		for (int i=0; i<cycles; i++) {
+			House house = loader.fromJson(json, new House());
+		}
+		long after = System.currentTimeMillis();
+		System.out.println("Duration: "+(after - before));
+		loader.printTiming();
 
-		// Verify resulting structure
-		assertEquals(2, house.getRooms().size());
-		Room room = house.getRooms().get(0);
-		assertEquals(1, room.getBeds().size());
-		Bed bed = room.getBeds().get(0);
-		assertEquals(BedSize.KING, bed.getSize());
-		// ... Including values for schema-evolved fields
-		assertEquals(BedFirmness.HARD, bed.getFirmness());
-		room = house.getRooms().get(1);
-		assertEquals(2, room.getBeds().size());
-		bed = room.getBeds().get(0);
-		assertEquals(BedSize.QUEEN, bed.getSize());
-		// ... Including values for schema-evolved fields
-		assertEquals(BedFirmness.HARD, bed.getFirmness());
-		bed = room.getBeds().get(1);
-		assertEquals(BedSize.TWIN, bed.getSize());
-		// ... Including values for schema-evolved fields
-		assertEquals(BedFirmness.HARD, bed.getFirmness());
+//		before = System.currentTimeMillis();
+//		for (int i=0; i<cycles; i++) {
+//			loader = new AvroJsonLoader("/avro-registry");
+//			House house = loader.fromJson(json, new House());
+//		}
+//		after = System.currentTimeMillis();
+//		System.out.println("Duration: "+(after - before));
+
+//		// Verify resulting structure
+//		assertEquals(2, house.getRooms().size());
+//		Room room = house.getRooms().get(0);
+//		assertEquals(1, room.getBeds().size());
+//		Bed bed = room.getBeds().get(0);
+//		assertEquals(BedSize.KING, bed.getSize());
+//		// ... Including values for schema-evolved fields
+//		assertEquals(BedFirmness.HARD, bed.getFirmness());
+//		room = house.getRooms().get(1);
+//		assertEquals(2, room.getBeds().size());
+//		bed = room.getBeds().get(0);
+//		assertEquals(BedSize.QUEEN, bed.getSize());
+//		// ... Including values for schema-evolved fields
+//		assertEquals(BedFirmness.HARD, bed.getFirmness());
+//		bed = room.getBeds().get(1);
+//		assertEquals(BedSize.TWIN, bed.getSize());
+//		// ... Including values for schema-evolved fields
+//		assertEquals(BedFirmness.HARD, bed.getFirmness());
 	}
 }

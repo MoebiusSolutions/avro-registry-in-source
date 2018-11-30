@@ -25,12 +25,70 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
+
+import com.google.common.base.Function;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 public class AvroJsonLoader {
 
 	public static final String AVRO_HEADER_TYPE = "avroType";
 	public static final String AVRO_HEADER_FINGERPRINT = "avroVer";
 	public static final String AVRO_HEADER_DATA= "avroData";
+
+	// TODO [rkenney]: Remove debug
+	private StopWatch fromJsonUnwrap = new StopWatch();
+	{
+		fromJsonUnwrap.start(); fromJsonUnwrap.suspend();
+	}
+	private StopWatch fromJsonLoadSchema = new StopWatch();
+	{
+		fromJsonLoadSchema.start(); fromJsonLoadSchema.suspend();
+	}
+	private StopWatch fromJsonCreateSpecificDatumReader = new StopWatch();
+	{
+		fromJsonCreateSpecificDatumReader.start(); fromJsonCreateSpecificDatumReader.suspend();
+	}
+	private StopWatch fromJsonCreateDecoder = new StopWatch();
+	{
+		fromJsonCreateDecoder.start(); fromJsonCreateDecoder.suspend();
+	}
+	private StopWatch fromJsonDecode = new StopWatch();
+	{
+		fromJsonDecode.start(); fromJsonDecode.suspend();
+	}
+	public void printTiming() {
+		System.out.printf("* fromJsonUnwrap: %s%n", fromJsonUnwrap.getTime());
+		System.out.printf("* fromJsonLoadSchema: %s%n", fromJsonLoadSchema.getTime());
+		System.out.printf("* fromJsonCreateSpecificDatumReader: %s%n", fromJsonCreateSpecificDatumReader.getTime());
+		System.out.printf("* fromJsonFullDecode: %s%n", fromJsonCreateDecoder.getTime());
+		System.out.printf("* fromJsonDecode: %s%n", fromJsonDecode.getTime());
+	}
+	
+	private static class SchemaLoader implements Function<String, Schema> {
+		@Override
+		public Schema apply(String schemaPath) {
+			try (InputStream in = AvroJsonLoader.class.getResourceAsStream(schemaPath)) {
+				if (in == null) {
+					throw new RuntimeException("Failed to load schema from resource ["+schemaPath+"]");
+				}
+
+				// TODO [rkenney]: Remove debug
+//				System.out.println("PARSING!");
+
+				return new Schema.Parser().parse(in);
+			} catch (RuntimeException | IOException e){
+				throw new RuntimeException("Failed to load resource file ["+schemaPath+"]", e);
+			}
+		}
+	}
+	private final ThreadLocal<LoadingCache<String, Schema>> schemaCache = new ThreadLocal<LoadingCache<String, Schema>>() {
+		@Override protected LoadingCache<String, Schema> initialValue() {
+			return CacheBuilder.newBuilder().build(CacheLoader.from(new SchemaLoader()));
+		}
+	};
 
 	private final String schemaRegistryResourcePath;
 
@@ -53,6 +111,8 @@ public class AvroJsonLoader {
 	 * @return A new instance of the Avro POJO.
 	 */
 	public <K extends SpecificRecordBase> K fromJson(String json, final K avroPojo) {
+
+		fromJsonUnwrap.resume();
 
 		// Parse as generic JSON, extracting Avro schema info
 		String writerSchemaType;
@@ -83,29 +143,43 @@ public class AvroJsonLoader {
 					"Cannot load JSON message of type ["+writerSchemaType+"] as ["+requestedSchemaType+"]");
 		}
 
+		fromJsonUnwrap.suspend();
+
+		fromJsonLoadSchema.resume();
+
 		// Load Avro schema (potentially older than the current schema)
-		Schema oldSchema; 
 		String oldSchemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, writerSchemaType, writerSchemaVersion);
-		// TODO [rkenney]: Cache the schema object
-		try (InputStream in = AvroJsonLoader.class.getResourceAsStream(oldSchemaPath)) {
-			if (in == null) {
-				throw new RuntimeException("Failed to load schema from resource ["+oldSchemaPath+"]");
-			}
-			oldSchema = new Schema.Parser().parse(in);
-		} catch (RuntimeException | IOException e){
-			throw new RuntimeException("Failed to load resource file ["+oldSchemaPath+"]", e);
-		}
+		Schema oldSchema = schemaCache.get().getUnchecked(oldSchemaPath);
+
+		fromJsonLoadSchema.suspend();
 
 		// Load instantiate the Avro POJO
 		K result;
 		JsonDecoder decoder;
 		try {
+
+			fromJsonCreateDecoder.resume();
+
 			decoder = DecoderFactory.get().jsonDecoder(oldSchema, mainJsonData);
+
+			fromJsonCreateDecoder.suspend();
+
+			fromJsonCreateSpecificDatumReader.resume();
+
 			SpecificDatumReader<K> reader = new SpecificDatumReader<K>(oldSchema, avroPojo.getSchema());
+
+			fromJsonCreateSpecificDatumReader.suspend();
+
+			fromJsonDecode.resume();
+
 			result = reader.read(null, decoder);
+
+			fromJsonDecode.suspend();
+
 		} catch (RuntimeException | IOException e) {
 			throw new RuntimeException("Failed to decode json message to as ["+requestedSchemaType+"]", e);
 		}
+
 
 		return result;
 	}
