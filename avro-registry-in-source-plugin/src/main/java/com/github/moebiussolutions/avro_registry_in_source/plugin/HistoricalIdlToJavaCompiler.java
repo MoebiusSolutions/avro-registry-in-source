@@ -68,8 +68,14 @@ public class HistoricalIdlToJavaCompiler extends AbstractMojo {
 			validateIdlSchemaFiles(this.idlFile, this.schemaSourceDir);
 		} catch (InvalidSchemaFiles e) {
 			System.err.println("");
-			System.err.println("ERROR: Missing/invalid Avro schema files in ["+this.schemaSourceDir+"]. ");
-			System.err.println("  This is likely resolved by copy the contents of ["+this.schemaTempDir+"] over.");
+			System.err.println("# ----------------");
+			System.err.println("# ERROR: Missing/invalid Avro schema files in ["+this.schemaSourceDir+"]. ");
+			System.err.println("#  This is likely resolved by copy the contents of ["+this.schemaTempDir+"] over.");
+			System.err.println("#");
+			System.err.println("# If you're in linux, try running:");
+			System.err.println("#");
+			System.err.println("# cp -R \""+this.schemaTempDir+"/\"* \""+this.schemaSourceDir+"\"");
+			System.err.println("# ----------------");
 			System.err.println("");
 			throw e;
 		}
