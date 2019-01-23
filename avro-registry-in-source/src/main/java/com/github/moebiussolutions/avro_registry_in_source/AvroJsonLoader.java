@@ -26,9 +26,12 @@ import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.github.moebiussolutions.avro_registry_in_source.common.CommonLib;
+
 public class AvroJsonLoader {
 
 	public static final String AVRO_HEADER_TYPE = "avroType";
+	public static final String AVRO_HEADER_NAMESPACE = "avroNamespace";
 	public static final String AVRO_HEADER_FINGERPRINT = "avroVer";
 	public static final String AVRO_HEADER_DATA = "avroData";
 
@@ -70,19 +73,23 @@ public class AvroJsonLoader {
 
 		// Parse as generic JSON, extracting Avro schema info
 		String writerSchemaType;
+		String writerSchemaNamespace;
 		String writerSchemaVersionStr;
 		long writerSchemaVersion;
 		String mainJsonData;
 		try (StringReader reader = new StringReader(json)) {
 			try (JsonReader jsonReader = Json.createReader(reader)) {
 				JsonObject root = jsonReader.readObject();
-				root.getString(AVRO_HEADER_TYPE);
-				root.getString(AVRO_HEADER_FINGERPRINT);
 				writerSchemaType = root.getString(AVRO_HEADER_TYPE);
+				writerSchemaNamespace= root.getString(AVRO_HEADER_NAMESPACE);
 				writerSchemaVersionStr = root.getString(AVRO_HEADER_FINGERPRINT);
-				if (StringUtils.isBlank(writerSchemaType) || StringUtils.isBlank(writerSchemaVersionStr)) {
-					throw new RuntimeException("JSON message does not contain Avro header(s) " + "(" + AVRO_HEADER_TYPE
-							+ ", " + AVRO_HEADER_FINGERPRINT + ")");
+				if (StringUtils.isBlank(writerSchemaNamespace)
+						|| StringUtils.isBlank(writerSchemaType)
+						|| StringUtils.isBlank(writerSchemaVersionStr)) {
+					throw new RuntimeException("JSON message does not contain Avro header(s) " + "("
+							+ AVRO_HEADER_NAMESPACE+ ", "
+							+ AVRO_HEADER_TYPE + ", "
+							+ AVRO_HEADER_FINGERPRINT + ")");
 				}
 				writerSchemaVersion = Long.parseLong(writerSchemaVersionStr);
 				JsonObject data = root.getJsonObject(AVRO_HEADER_DATA);
@@ -100,7 +107,7 @@ public class AvroJsonLoader {
 		}
 
 		// Load writer schema
-		Schema writerSchema = loadSchema(writerSchemaType, writerSchemaVersion);
+		Schema writerSchema = loadSchema(writerSchemaNamespace, writerSchemaType, writerSchemaVersion);
 		if (writerSchema == null) {
 			throw new AvroSchemaNotFoundException(
 					String.format("Failed to load writer schema [%s:%s]", writerSchemaType, writerSchemaVersion));
@@ -159,6 +166,7 @@ public class AvroJsonLoader {
 		// TODO [rkenney]: Cache fingerprints
 		long fp = SchemaNormalization.parsingFingerprint64(avroPojo.getSchema());
 		String avroWrapper = Json.createObjectBuilder()
+			.add(AVRO_HEADER_NAMESPACE, avroPojo.getSchema().getNamespace())
 			.add(AVRO_HEADER_TYPE, avroPojo.getSchema().getName())
 			.add(AVRO_HEADER_FINGERPRINT, ""+fp)
 			.add(AVRO_HEADER_DATA, MSG_HOLDER).build().toString();
@@ -194,6 +202,7 @@ public class AvroJsonLoader {
 	/**
 	 * Given an Avro type and schema signature, return the {@link Schema}.
 	 * 
+	 * @param typeNamespace    Namespace of the Avro schema.
 	 * @param type             Name of the Avro type.
 	 * @param versionSignature The hash value of the Avro schema. The stream to
 	 *                         write to.
@@ -201,10 +210,10 @@ public class AvroJsonLoader {
 	 * @return The requested {@link Schema}, or <code>null</code> if no matching
 	 *         schema was found.
 	 */
-	public Schema loadSchema(String type, long versionSignature) {
-		// TODO [rkenney]: Add namespace arg
-		// TODO [rkenney]: Sanitize parameters
-		String schemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, type, versionSignature);
+	public Schema loadSchema(String typeNamespace, String type, long versionSignature) {
+		typeNamespace = CommonLib.sanitizeAvroIdentifierToBaseFilename(typeNamespace);
+		type = CommonLib.sanitizeAvroIdentifierToBaseFilename(type);
+		String schemaPath = String.format("%s/%s/%s_%s.avsc", this.schemaRegistryResourcePath, typeNamespace, type, versionSignature);
 		// TODO [rkenney]: Cache the schema object
 		try (InputStream in = AvroJsonLoader.class.getResourceAsStream(schemaPath)) {
 			if (in != null) {

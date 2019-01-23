@@ -1,4 +1,4 @@
-{"avroType":"House","avroVer":"-582778734993576161","avroData":
+{"avroNamespace":"com.example","avroType":"House","avroVer":"-582778734993576161","avroData":
 {
   "rooms" : {
     "array" : [ {

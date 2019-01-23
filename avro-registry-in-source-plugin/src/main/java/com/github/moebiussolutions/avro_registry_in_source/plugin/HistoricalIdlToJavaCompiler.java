@@ -17,6 +17,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import com.github.moebiussolutions.avro_registry_in_source.CommonLib;
+
 @Mojo(name = "idl-export-validate-compile", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class HistoricalIdlToJavaCompiler extends AbstractMojo {
 
@@ -101,6 +103,11 @@ public class HistoricalIdlToJavaCompiler extends AbstractMojo {
 			Protocol p = idl.CompilationUnit();
 			p.getTypes().iterator().forEachRemaining((s) -> {
 				File outFile = getFingerprintedSchemaFile(outputDir, s);
+				try {
+					FileUtils.forceMkdirParent(outFile.getParentFile());
+				} catch (IOException e) {
+					throw new RuntimeException("Failed to create directory ["+outFile.getParentFile()+"]");
+				}
 				try {
 					FileUtils.write(outFile, s.toString(true), StandardCharsets.UTF_8);
 				} catch (IOException e) {
@@ -189,6 +196,9 @@ public class HistoricalIdlToJavaCompiler extends AbstractMojo {
 	}
 
 	private static File getFingerprintedSchemaFile(File schemaDir, Schema s, long fingerprint) {
-		return new File(schemaDir, s.getName()+"_"+fingerprint+".avsc");
+		// NOTE: Sanitizing all slashes and periods so they cannot be used to walk directories on load
+		String namespace = CommonLib.sanitizeAvroIdentifierToBaseFilename(s.getNamespace());
+		String name = CommonLib.sanitizeAvroIdentifierToBaseFilename(s.getName());
+		return new File(new File(schemaDir, namespace), name+"_"+fingerprint+".avsc");
 	}
 }
