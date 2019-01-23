@@ -110,7 +110,8 @@ public class AvroJsonLoader {
 		Schema writerSchema = loadSchema(writerSchemaNamespace, writerSchemaType, writerSchemaVersion);
 		if (writerSchema == null) {
 			throw new AvroSchemaNotFoundException(
-					String.format("Failed to load writer schema [%s:%s]", writerSchemaType, writerSchemaVersion));
+					String.format("Failed to load writer schema [%s:%s:%s]",
+							writerSchemaNamespace, writerSchemaType, writerSchemaVersion));
 		}
 
 		// Load instantiate the Avro POJO
