@@ -199,6 +199,7 @@
 	</profiles>
 
 	<modules>
+		<module>avro-registry-in-source-common</module>
 		<module>avro-registry-in-source-plugin</module>
 		<module>avro-registry-in-source</module>
 		<module>avro-registry-in-source-tests</module>

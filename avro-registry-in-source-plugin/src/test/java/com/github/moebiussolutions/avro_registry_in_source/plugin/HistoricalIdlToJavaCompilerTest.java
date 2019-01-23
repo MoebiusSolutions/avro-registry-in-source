@@ -48,10 +48,10 @@ public class HistoricalIdlToJavaCompilerTest {
 
 		// Verify
 		// ... Schema files generated
-		assertTrue(new File(mojo.schemaTempDir, "Bed_1378068713606829616.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "BedSize_5741753547892987029.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "House_-7599226751060149848.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "Room_-5559107264162428975.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/Bed_1378068713606829616.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/BedSize_5741753547892987029.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/House_-7599226751060149848.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/Room_-5559107264162428975.avsc").isFile());
 		// ... Java files generated
 		assertTrue(new File(mojo.javaTargetDir, "com/example/package/Bed.java").isFile());
 		assertTrue(new File(mojo.javaTargetDir, "com/example/package/BedSize.java").isFile());
@@ -79,7 +79,9 @@ public class HistoricalIdlToJavaCompilerTest {
 			mojo.execute();
 			Assert.fail("Expected exception");
 		} catch (HistoricalIdlToJavaCompiler.InvalidSchemaFiles e) {
-			assertEquals("Missing schema file [target/junit-temp/com.github.moebiussolutions.avro_registry_in_source.plugin.HistoricalIdlToJavaCompilerTest/schema-source/BedSize_5741753547892987029.avsc], which should have been extracted from IDL [src/test/resources/HistoricalIdlToJavaCompilerTest/Main.avdl]", e.getMessage());
+			assertEquals("Missing schema file "
+					+ "[target/junit-temp/com.github.moebiussolutions.avro_registry_in_source.plugin.HistoricalIdlToJavaCompilerTest/schema-source/com_example_package/BedSize_5741753547892987029.avsc], "
+					+ "which should have been extracted from IDL [src/test/resources/HistoricalIdlToJavaCompilerTest/Main.avdl]", e.getMessage());
 		}
 	}
 
@@ -106,10 +108,10 @@ public class HistoricalIdlToJavaCompilerTest {
 
 		// Verify
 		// ... Schema files generated
-		assertTrue(new File(mojo.schemaTempDir, "Bed_1378068713606829616.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "BedSize_5741753547892987029.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "House_-7599226751060149848.avsc").isFile());
-		assertTrue(new File(mojo.schemaTempDir, "Room_-5559107264162428975.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/Bed_1378068713606829616.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/BedSize_5741753547892987029.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/House_-7599226751060149848.avsc").isFile());
+		assertTrue(new File(mojo.schemaTempDir, "com_example_package/Room_-5559107264162428975.avsc").isFile());
 		// ... Java files generated
 		assertTrue(new File(mojo.javaTargetDir, "com/example/package/Bed.java").isFile());
 		assertTrue(new File(mojo.javaTargetDir, "com/example/package/BedSize.java").isFile());
