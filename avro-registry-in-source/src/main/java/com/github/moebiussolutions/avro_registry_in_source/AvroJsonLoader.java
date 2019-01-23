@@ -30,12 +30,27 @@ public class AvroJsonLoader {
 
 	public static final String AVRO_HEADER_TYPE = "avroType";
 	public static final String AVRO_HEADER_FINGERPRINT = "avroVer";
-	public static final String AVRO_HEADER_DATA= "avroData";
+	public static final String AVRO_HEADER_DATA = "avroData";
 
 	private final String schemaRegistryResourcePath;
+	private final SchemaProvider externalSchemaProvider;
 
+	/**
+	 * @param schemaRegistryResourcePath Resoure file path of the directory
+	 *                                   containing the embedded schemas.
+	 */
 	public AvroJsonLoader(String schemaRegistryResourcePath) {
+		this(schemaRegistryResourcePath, null);
+	}
+
+	/**
+	 * @param schemaRegistryResourcePath Resoure file path of the directory
+	 *                                   containing the embedded schemas.
+	 * @param externalProvider           An optional secondary provider of schemas.
+	 */
+	public AvroJsonLoader(String schemaRegistryResourcePath, SchemaProvider externalProvider) {
 		this.schemaRegistryResourcePath = schemaRegistryResourcePath;
+		this.externalSchemaProvider = (externalProvider != null) ? externalProvider : (t, h) -> null;
 	}
 
 	/**
@@ -43,20 +58,20 @@ public class AvroJsonLoader {
 	 * {@link #toJson(SpecificRecordBase, OutputStream, boolean)}, which ensures
 	 * that the JSON is wrapped with metadata about the Avro schema.
 	 * 
-	 * @param json
-	 *            The JSON to parse.
-	 * @param avroPojo
-	 *            The Avro POJO type to return. The provided object is NOT
-	 *            modified--only used for typing information.
-	 * @param <K>
-	 *            The POJO type to return.
+	 * @param json     The JSON to parse.
+	 * @param avroPojo The Avro POJO type to return. The provided object is NOT
+	 *                 modified--only used for typing information.
+	 * @param          <K> The POJO type to return.
 	 * @return A new instance of the Avro POJO.
+	 * 
+	 * @throws AvroSchemaNotFoundException If failed to access the writer's schema
 	 */
-	public <K extends SpecificRecordBase> K fromJson(String json, final K avroPojo) {
+	public <K extends SpecificRecordBase> K fromJson(String json, final K avroPojo) throws AvroSchemaNotFoundException {
 
 		// Parse as generic JSON, extracting Avro schema info
 		String writerSchemaType;
-		String writerSchemaVersion;
+		String writerSchemaVersionStr;
+		long writerSchemaVersion;
 		String mainJsonData;
 		try (StringReader reader = new StringReader(json)) {
 			try (JsonReader jsonReader = Json.createReader(reader)) {
@@ -64,15 +79,16 @@ public class AvroJsonLoader {
 				root.getString(AVRO_HEADER_TYPE);
 				root.getString(AVRO_HEADER_FINGERPRINT);
 				writerSchemaType = root.getString(AVRO_HEADER_TYPE);
-				writerSchemaVersion = root.getString(AVRO_HEADER_FINGERPRINT);
-				if (StringUtils.isBlank(writerSchemaType) || StringUtils.isBlank(writerSchemaVersion)) {
-					throw new RuntimeException("JSON message does not contain Avro header(s) "
-							+ "("+AVRO_HEADER_TYPE+", "+AVRO_HEADER_FINGERPRINT+")");
+				writerSchemaVersionStr = root.getString(AVRO_HEADER_FINGERPRINT);
+				if (StringUtils.isBlank(writerSchemaType) || StringUtils.isBlank(writerSchemaVersionStr)) {
+					throw new RuntimeException("JSON message does not contain Avro header(s) " + "(" + AVRO_HEADER_TYPE
+							+ ", " + AVRO_HEADER_FINGERPRINT + ")");
 				}
+				writerSchemaVersion = Long.parseLong(writerSchemaVersionStr);
 				JsonObject data = root.getJsonObject(AVRO_HEADER_DATA);
 				if (null == data) {
-					throw new RuntimeException("JSON message does not contain Avro body "
-							+ "("+AVRO_HEADER_DATA+")");
+					throw new RuntimeException(
+							"JSON message does not contain Avro body " + "(" + AVRO_HEADER_DATA + ")");
 				}
 				mainJsonData = data.toString();
 			}
@@ -80,31 +96,25 @@ public class AvroJsonLoader {
 		String requestedSchemaType = avroPojo.getSchema().getName();
 		if (!requestedSchemaType.equals(writerSchemaType)) {
 			throw new RuntimeException(
-					"Cannot load JSON message of type ["+writerSchemaType+"] as ["+requestedSchemaType+"]");
+					"Cannot load JSON message of type [" + writerSchemaType + "] as [" + requestedSchemaType + "]");
 		}
 
-		// Load Avro schema (potentially older than the current schema)
-		Schema oldSchema; 
-		String oldSchemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, writerSchemaType, writerSchemaVersion);
-		// TODO [rkenney]: Cache the schema object
-		try (InputStream in = AvroJsonLoader.class.getResourceAsStream(oldSchemaPath)) {
-			if (in == null) {
-				throw new RuntimeException("Failed to load schema from resource ["+oldSchemaPath+"]");
-			}
-			oldSchema = new Schema.Parser().parse(in);
-		} catch (RuntimeException | IOException e){
-			throw new RuntimeException("Failed to load resource file ["+oldSchemaPath+"]", e);
+		// Load writer schema
+		Schema writerSchema = loadSchema(writerSchemaType, writerSchemaVersion);
+		if (writerSchema == null) {
+			throw new AvroSchemaNotFoundException(
+					String.format("Failed to load writer schema [%s:%s]", writerSchemaType, writerSchemaVersion));
 		}
 
 		// Load instantiate the Avro POJO
 		K result;
 		JsonDecoder decoder;
 		try {
-			decoder = DecoderFactory.get().jsonDecoder(oldSchema, mainJsonData);
-			SpecificDatumReader<K> reader = new SpecificDatumReader<K>(oldSchema, avroPojo.getSchema());
+			decoder = DecoderFactory.get().jsonDecoder(writerSchema, mainJsonData);
+			SpecificDatumReader<K> reader = new SpecificDatumReader<K>(writerSchema, avroPojo.getSchema());
 			result = reader.read(null, decoder);
 		} catch (RuntimeException | IOException e) {
-			throw new RuntimeException("Failed to decode json message to as ["+requestedSchemaType+"]", e);
+			throw new RuntimeException("Failed to decode json message to as [" + requestedSchemaType + "]", e);
 		}
 
 		return result;
@@ -114,19 +124,16 @@ public class AvroJsonLoader {
 	 * Serializes an Avro POJO to a JSON format that is wrapped by schema metadata
 	 * and can be deserialized with {@link #fromJson(String, SpecificRecordBase)}.
 	 * 
-	 * @param avroPojo
-	 *            The Avro POJO to serialize.
-	 * @param pretty
-	 *            Whether or not to include newlines/indenting in the resulting
-	 *            JSON.
-	 * @param <K>
-	 *            The POJO type to return.
+	 * @param avroPojo The Avro POJO to serialize.
+	 * @param pretty   Whether or not to include newlines/indenting in the resulting
+	 *                 JSON.
+	 * @param          <K> The POJO type to return.
 	 * @return A JSON string.
 	 */
 	public <K extends SpecificRecordBase> String toJson(K avroPojo, boolean pretty) {
 		String json;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			new AvroJsonLoader("/avro-registry").toJson(avroPojo, out, pretty);
+			new AvroJsonLoader(this.schemaRegistryResourcePath).toJson(avroPojo, out, pretty);
 			json = out.toString();
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to write to in-memory buffer (shouldn't happen)", e);
@@ -138,15 +145,11 @@ public class AvroJsonLoader {
 	 * Serializes an Avro POJO to a JSON format that is wrapped by schema metadata
 	 * and can be deserialized with {@link #fromJson(String, SpecificRecordBase)}.
 	 * 
-	 * @param avroPojo
-	 *            The Avro POJO to serialize.
-	 * @param out
-	 *            The stream to write to.
-	 * @param pretty
-	 *            Whether or not to include newlines/indenting in the resulting
-	 *            JSON.
-	 * @param <K>
-	 *            The POJO type to return.
+	 * @param avroPojo The Avro POJO to serialize.
+	 * @param out      The stream to write to.
+	 * @param pretty   Whether or not to include newlines/indenting in the resulting
+	 *                 JSON.
+	 * @param          <K> The POJO type to return.
 	 */
 	public <K extends SpecificRecordBase> void toJson(K avroPojo, OutputStream out, boolean pretty) {
 		
@@ -186,5 +189,32 @@ public class AvroJsonLoader {
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to write avro pojo to json", e);
 		}
+	}
+
+	/**
+	 * Given an Avro type and schema signature, return the {@link Schema}.
+	 * 
+	 * @param type             Name of the Avro type.
+	 * @param versionSignature The hash value of the Avro schema. The stream to
+	 *                         write to.
+	 * 
+	 * @return The requested {@link Schema}, or <code>null</code> if no matching
+	 *         schema was found.
+	 */
+	public Schema loadSchema(String type, long versionSignature) {
+		// TODO [rkenney]: Add namespace arg
+		// TODO [rkenney]: Sanitize parameters
+		String schemaPath = String.format("%s/%s_%s.avsc", this.schemaRegistryResourcePath, type, versionSignature);
+		// TODO [rkenney]: Cache the schema object
+		try (InputStream in = AvroJsonLoader.class.getResourceAsStream(schemaPath)) {
+			if (in != null) {
+				return new Schema.Parser().parse(in);
+			}
+		} catch (RuntimeException | IOException e) {
+			// NOTE: This is not a really a recoverable situation (an invalid resource files in the classpath)
+			// so we don't throw AvroSchemaNotFoundException 
+			throw new RuntimeException("Failed to load resource file [" + schemaPath + "]", e);
+		}
+		return this.externalSchemaProvider.getSchema(type, versionSignature);
 	}
 }
