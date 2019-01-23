@@ -17,7 +17,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import com.github.moebiussolutions.avro_registry_in_source.CommonLib;
+import com.github.moebiussolutions.avro_registry_in_source.common.CommonLib;
 
 @Mojo(name = "idl-export-validate-compile", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class HistoricalIdlToJavaCompiler extends AbstractMojo {
