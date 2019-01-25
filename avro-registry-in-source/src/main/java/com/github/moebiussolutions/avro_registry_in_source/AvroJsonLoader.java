@@ -53,7 +53,7 @@ public class AvroJsonLoader {
 	 */
 	public AvroJsonLoader(String schemaRegistryResourcePath, SchemaProvider externalProvider) {
 		this.schemaRegistryResourcePath = schemaRegistryResourcePath;
-		this.externalSchemaProvider = (externalProvider != null) ? externalProvider : (t, h) -> null;
+		this.externalSchemaProvider = (externalProvider != null) ? externalProvider : (ns, ty, sig) -> null;
 	}
 
 	/**
@@ -225,6 +225,6 @@ public class AvroJsonLoader {
 			// so we don't throw AvroSchemaNotFoundException 
 			throw new RuntimeException("Failed to load resource file [" + schemaPath + "]", e);
 		}
-		return this.externalSchemaProvider.getSchema(type, versionSignature);
+		return this.externalSchemaProvider.getSchema(typeNamespace, type, versionSignature);
 	}
 }

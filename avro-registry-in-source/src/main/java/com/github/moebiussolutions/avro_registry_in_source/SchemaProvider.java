@@ -7,6 +7,6 @@ public interface SchemaProvider {
 	/**
 	 * Returns a {@link Schema}, <code>null</code> if not found.
 	 */
-	Schema getSchema(String type, long signature);
+	Schema getSchema(String namespace, String type, long signature);
 
 }
