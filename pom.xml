@@ -9,7 +9,7 @@
 	<description>Root POM</description>
 
 	<properties>
-		<avro.version>1.11.3</avro.version>
+		<avro.version>1.11.4</avro.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- Sets JDK/JRE compliance level-->
 		<maven.compiler.source>1.8</maven.compiler.source>
